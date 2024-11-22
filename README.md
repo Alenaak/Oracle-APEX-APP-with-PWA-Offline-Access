@@ -44,16 +44,92 @@
    - Label the button as **"Create"** or similar.
    - Set its action to execute a JavaScript function that will save the data to IndexedDB when the user is offline:
      ```javascript
-     if (!navigator.onLine) {
-         saveDataToIndexedDb(); // Store locally when offline
-     } else {
-         // Send data to Oracle APEX database
-         apex.server.process("insertion", { 
-             x01: $v("P4_CITY"), 
-             x02: $v("P4_NAME"), 
-             x03: $v("P4_PHONE") 
-         });
-     }
+   if (!navigator.onLine) {
+    saveDataToIndexedDb();
+} else {
+    console.log("ONLINE");
+    apex.server.process(
+        "insertion",
+        {
+            x01: $v("P4_CITY"),
+            x02: $v("P4_NAME"),
+            x03: $v("P4_PHONE")
+        },
+        {
+            success: function (data) {
+                // Show a success message
+                apex.message.showPageSuccess("Data successfully inserted into the database!");
+            },
+            error: function (xhr, status, error) {
+                // Show an error message
+                console.error("Error during data insertion:", error);
+                apex.message.showErrors([
+                    {
+                        type: "error",
+                        location: "page",
+                        message: "Error during data insertion: " + error,
+                        unsafe: false
+                    }
+                ]);
+            }
+        }
+    );
+}
+
+// Function to save data to IndexedDB
+function saveDataToIndexedDb() {
+    const data = {
+        x01: $v("P4_CITY"),
+        x02: $v("P4_NAME"),
+        x03: $v("P4_PHONE")
+    };
+
+    const dbRequest = indexedDB.open("offline-forms", 1);
+
+    dbRequest.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains("forms")) {
+            db.createObjectStore("forms", { keyPath: "id", autoIncrement: true });
+        }
+    };
+
+    dbRequest.onsuccess = (event) => {
+        const db = event.target.result;
+        const transaction = db.transaction("forms", "readwrite");
+        const store = transaction.objectStore("forms");
+
+        store.add(data);
+
+        transaction.oncomplete = () => {
+            apex.message.showPageSuccess("Data saved locally as you are offline.");
+        };
+
+        transaction.onerror = (err) => {
+            console.error("Transaction error:", err);
+            apex.message.showErrors([
+                {
+                    type: "error",
+                    location: "page",
+                    message: "Failed to save data locally.",
+                    unsafe: false
+                }
+            ]);
+        };
+    };
+
+    dbRequest.onerror = (err) => {
+        console.error("IndexedDB error:", err);
+        apex.message.showErrors([
+            {
+                type: "error",
+                location: "page",
+                message: "Error accessing local database.",
+                unsafe: false
+            }
+        ]);
+    };
+}
+
      ```
 
 ---
@@ -61,48 +137,77 @@
 ### **6. Load Data from IndexedDB on Page Reload When User Gets Online**
 1. Add the following code to be executed when the page reloads, so the data is synced when the user gets back online:
    ```javascript
-   window.addEventListener('online', function () {
-       syncIndexedDbToDatabase();
-   });
+  syncIndexedDbToDatabase();
 
-   function syncIndexedDbToDatabase() {
-       const dbRequest = indexedDB.open("offline-forms", 1);
 
-       dbRequest.onsuccess = (event) => {
-           const db = event.target.result;
-           const transaction = db.transaction("forms", "readwrite");
-           const store = transaction.objectStore("forms");
+function syncIndexedDbToDatabase() {
+    const dbRequest = indexedDB.open("offline-forms", 1);
 
-           store.getAll().onsuccess = function (event) {
-               const unsyncedData = event.target.result;
-               unsyncedData.forEach(data => {
-                   apex.server.process("insertion", {
-                       x01: data.x01,
-                       x02: data.x02,
-                       x03: data.x03
-                   }, {
-                       success: function () {
-                           deleteFromIndexedDb(data.id);
-                       },
-                       error: function (err) {
-                           console.error("Error syncing data:", err);
-                       }
-                   });
-               });
-           };
-       };
-   }
+    dbRequest.onsuccess = (event) => {
+        const db = event.target.result;
+        const transaction = db.transaction("forms", "readonly");
+        const store = transaction.objectStore("forms");
+        const getAllRequest = store.getAll();
 
-   function deleteFromIndexedDb(id) {
-       const dbRequest = indexedDB.open("offline-forms", 1);
+        getAllRequest.onsuccess = () => {
+            const offlineData = getAllRequest.result;
 
-       dbRequest.onsuccess = (event) => {
-           const db = event.target.result;
-           const transaction = db.transaction("forms", "readwrite");
-           const store = transaction.objectStore("forms");
-           store.delete(id);
-           transaction.oncomplete = () => {
-               console.log("Data deleted from IndexedDB");
-           };
-       };
-   }
+            if (offlineData.length > 0) {
+                offlineData.forEach((record) => {
+                    apex.server.process(
+                        "insertion",
+                        {
+                            x01: record.x01,
+                            x02: record.x02,
+                            x03: record.x03
+                        },
+                        {
+                            success: function (data) {
+                                // Assume data is successfully inserted if we get a response
+                                console.log("Record processed successfully:", record);
+                                deleteRecordFromIndexedDb(db, record.id);
+                            },
+                            error: function (xhr, status, error) {
+                                console.log("Error occurred, but verifying server status...", error);
+
+                             
+                            }
+                        }
+                    );
+                });
+
+                apex.message.showPageSuccess("Data sync process completed.");
+            } else {
+                apex.message.showPageSuccess("No offline data to sync.");
+            }
+        };
+
+        getAllRequest.onerror = (err) => {
+            console.error("Error fetching data from IndexedDB:", err);
+            apex.message.showErrors([
+                {
+                    type: "error",
+                    location: "page",
+                    message: "Error fetching offline data.",
+                    unsafe: false
+                }
+            ]);
+        };
+    };
+
+    dbRequest.onerror = (err) => {
+        console.error("Error opening IndexedDB:", err);
+        apex.message.showErrors([
+            {
+                type: "error",
+                location: "page",
+                message: "Error accessing offline database.",
+                unsafe: false
+            }
+        ]);
+    };
+}
+
+
+
+
