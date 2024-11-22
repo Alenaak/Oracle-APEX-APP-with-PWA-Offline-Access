@@ -1,0 +1,52 @@
+[
+  {
+    "name": "John Doe",
+    "city": "New York",
+    "phone": "+1-123-456-7890"
+  },
+  {
+    "name": "Jane Smith",
+    "city": "Los Angeles",
+    "phone": "+1-987-654-3210"
+  },
+  {
+    "name": "Robert Brown",
+    "city": "Chicago",
+    "phone": "+1-555-123-4567"
+  },
+  {
+    "name": "Emily Davis",
+    "city": "Houston",
+    "phone": "+1-555-987-6543"
+  },
+  {
+    "name": "Michael Johnson",
+    "city": "Phoenix",
+    "phone": "+1-444-222-3333"
+  },
+  {
+    "name": "Sarah Wilson",
+    "city": "Philadelphia",
+    "phone": "+1-777-888-9999"
+  },
+  {
+    "name": "David Martinez",
+    "city": "San Antonio",
+    "phone": "+1-666-444-1111"
+  },
+  {
+    "name": "Sophia Anderson",
+    "city": "San Diego",
+    "phone": "+1-333-555-7777"
+  },
+  {
+    "name": "James Lee",
+    "city": "Dallas",
+    "phone": "+1-222-666-8888"
+  },
+  {
+    "name": "Olivia Taylor",
+    "city": "San Jose",
+    "phone": "+1-888-999-0000"
+  }
+]
