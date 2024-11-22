@@ -213,7 +213,7 @@
 
 ###  **7.Add the Following Code Inside the AJAX Callback (Insertion)**
 
-1. In Oracle APEX, you can add the following PL/SQL code inside the AJAX **Callback** process (e.g., **Insertion**) to handle the data insertion into the database:
+1. Add the following PL/SQL code inside the AJAX **Callback** process (e.g., **Insertion**) to handle the data insertion into the database:
 
 ```plsql
 DECLARE
