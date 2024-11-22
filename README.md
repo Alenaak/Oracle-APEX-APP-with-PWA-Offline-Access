@@ -134,7 +134,7 @@
 ---
 
 ### **6. Load Data from IndexedDB on Page Reload When User Gets Online**
-1. Add the following code to be executed when the page reloads, so the data is synced when the user gets back online:
+1. Add the following code to be executed when the page reloads, so the data is synced automatically when the user gets back online:
    ```javascript
    // Sync offline data to database when the user comes back online
 
