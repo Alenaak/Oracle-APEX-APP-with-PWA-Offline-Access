@@ -208,3 +208,29 @@
    }
 
  
+
+
+
+###  **7.Add the Following Code Inside the AJAX Callback (Insertion)**
+
+1. In Oracle APEX, you can add the following PL/SQL code inside the AJAX **Callback** process (e.g., **Insertion**) to handle the data insertion into the database:
+
+```plsql
+DECLARE
+    v_city VARCHAR2(50);
+    v_name VARCHAR2(100); 
+    v_phone VARCHAR2(50);
+BEGIN
+    -- Retrieve values passed from JavaScript
+    v_city := apex_application.g_x01;  
+    v_name := apex_application.g_x02; 
+    v_phone := apex_application.g_x03; 
+    
+    -- Insert the data into the TESTING table
+    INSERT INTO TESTING (CITY, NAME, PHONE) 
+    VALUES (v_city, v_name, v_phone);
+    
+    -- Commit the transaction
+    COMMIT;
+END;
+
