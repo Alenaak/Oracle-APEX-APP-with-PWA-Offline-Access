@@ -137,9 +137,9 @@
 1. Add the following code to be executed when the page reloads, so the data is synced when the user gets back online:
    ```javascript
    // Sync offline data to database when the user comes back online
-   window.addEventListener('online', function () {
+
        syncIndexedDbToDatabase();
-   });
+   
 
    function syncIndexedDbToDatabase() {
        const dbRequest = indexedDB.open("offline-forms", 1);
@@ -166,7 +166,7 @@
                                success: function (data) {
                                    // Assume data is successfully inserted if we get a response
                                    console.log("Record processed successfully:", record);
-                                   deleteRecordFromIndexedDb(db, record.id);
+                                 
                                },
                                error: function (xhr, status, error) {
                                    console.log("Error occurred, but verifying server status...", error);
@@ -207,13 +207,4 @@
        };
    }
 
-   // Function to delete record from IndexedDB after successful sync
-   function deleteRecordFromIndexedDb(db, id) {
-       const transaction = db.transaction("forms", "readwrite");
-       const store = transaction.objectStore("forms");
-       store.delete(id);
-
-       transaction.oncomplete = () => {
-           console.log("Data deleted from IndexedDB");
-       };
-   }
+ 
