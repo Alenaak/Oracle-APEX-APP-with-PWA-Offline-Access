@@ -1,4 +1,4 @@
-# **Steps to Create an Oracle APEX App PWA for Offline Access**
+# **Steps to Create an Oracle with APEX App PWA for Offline Access-SAVE DATA WITHOUT INTERNET ACCESS USING INDEXEDDB**
 
 ### **1. Create a New Oracle APEX Workspace**
 1. **Sign in to Oracle APEX**:
